@@ -18,22 +18,22 @@ python -m pip install -r requirements.txt
 Generate the 39 runs, problem arrays, random seeds, audit trajectories, and run records:
 
 ```bash
-python experiments/run_experiments.py --output results
-python experiments/summarize_results.py --results results --output reproduced/summary
-python scripts/make_figures.py --results results --output reproduced/figures
+python experiments/run_experiments.py --output reproduced/results
+python experiments/summarize_results.py --results reproduced/results --output reproduced/summary
+python scripts/make_figures.py --results reproduced/results --output reproduced/figures --figure-start 2
 python scripts/make_algorithm_schematic.py --output reproduced/figures
 ```
 
-The runner creates `results/` locally. This generated directory is ignored by Git and is not part of the repository. The figures use these newly generated results.
+Use a new or empty directory for the first command. The runner writes the instances and records to `reproduced/results/`. Once the 39 runs finish, reuse this directory for the remaining commands. Git ignores the generated files.
 
 ## Reproduce the additional analyses in the revised study
 
-Run the main experiment grid above first. The following scripts read its `results/` data and write derived files under `reproduced/`.
+Run the main experiment grid above first. The following scripts read its `reproduced/results/` data and write derived files under `reproduced/`.
 
 ### Stopping rules and accuracy diagnostics
 
 ```bash
-python experiments/audit_stopping_rules.py --results results --output reproduced/diagnostics
+python experiments/audit_stopping_rules.py --results reproduced/results --output reproduced/diagnostics
 ```
 
 Recomputes the paired comparison at the joint original-gap and lifted-residual stopping rule, compares it with stopping on the lifted residual alone, and writes the accuracy and stopping tables plus per-run diagnostics.
@@ -41,7 +41,7 @@ Recomputes the paired comparison at the joint original-gap and lifted-residual s
 ### Randomized column-block baseline
 
 ```bash
-python experiments/column_baseline.py --results results --output reproduced/column_baseline.csv
+python experiments/column_baseline.py --results reproduced/results --output reproduced/column_baseline.csv
 ```
 
 Runs a uniformly sampled column-block proximal-gradient method on the generated problem instances and compares its payload with quarter-participation R2WBS at a common original-problem duality-gap threshold.
@@ -49,7 +49,7 @@ Runs a uniformly sampled column-block proximal-gradient method on the generated 
 ### Audit interval, message deployment, and nonzero-graph initialization
 
 ```bash
-python experiments/protocol_checks.py --output reproduced/protocol_checks
+python experiments/protocol_checks.py --results reproduced/results --output reproduced/protocol_checks
 ```
 
 Replays audit intervals of 10 and 50 rounds using the same generated arrays and activation seeds, compares message counts for the documented deployments and merged audit messages, and checks the initialization-bias formula on a nonzero graph.
@@ -57,7 +57,7 @@ Replays audit intervals of 10 and 50 rounds using the same generated arrays and 
 ### Local contraction diagnostic
 
 ```bash
-python experiments/local_rate_check.py --results results --output reproduced/local_rate_check.csv
+python experiments/local_rate_check.py --results reproduced/results --output reproduced/local_rate_check.csv
 ```
 
 Measures the distance-to-residual ratio and one-step contraction on the specified full-participation instance. These are finite-sample diagnostics, not a uniform error-bound estimate.
@@ -65,7 +65,7 @@ Measures the distance-to-residual ratio and one-step contraction on the specifie
 ### Penalty sensitivity
 
 ```bash
-python experiments/penalty_sensitivity.py --output reproduced/penalty_sensitivity.csv
+python experiments/penalty_sensitivity.py --results reproduced/results --output reproduced/penalty_sensitivity.csv
 ```
 
 Repeats one fixed problem and activation stream at three values of the Douglas–Rachford penalty.

@@ -31,10 +31,11 @@ def solver_model(original, rho):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--results", type=Path, default=ROOT / "results")
     parser.add_argument("--output", type=Path,
                         default=ROOT / "reproduced" / "penalty_sensitivity.csv")
     args = parser.parse_args()
-    results = ROOT / "results"
+    results = args.results
     meta = next(item for item in json.loads((results / "problems.json").read_text())
                 if item["case"] == "correlated_lasso" and item["repeat"] == 0)
     with (results / "runs.csv").open(newline="") as handle:

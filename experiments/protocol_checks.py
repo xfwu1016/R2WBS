@@ -76,10 +76,11 @@ def paired_summary(rows, measures, extra_key=None):
 def main():
     root = Path(__file__).resolve().parents[1]
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--results', type=Path, default=root/'results')
     parser.add_argument('--output', type=Path, default=root/'reproduced'/'protocol_checks')
     args = parser.parse_args()
     args.output.mkdir(parents=True, exist_ok=True)
-    data = root/'results'
+    data = args.results
     with (data/'runs.csv').open(newline='', encoding='utf-8') as stream:
         runs = list(csv.DictReader(stream))
     problems = {(r['case'], r['repeat']): r for r in json.loads((data/'problems.json').read_text())}
