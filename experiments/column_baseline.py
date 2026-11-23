@@ -10,15 +10,26 @@ from threadpoolctl import threadpool_limits
 from run_experiments import Problem, shrink, write_csv
 
 
-def run_column_blocks(problem, seed, audit_cost):
+def gram_setup_cost(p):
+    return p.M * sum(int(n) * (int(n) + 1) // 2 for n in p.nj)
+
+
+def run_column_blocks(problem, seed, audit_cost, *, share_gram=False):
     p = problem
     generator = np.random.default_rng(seed)
     x = np.zeros(p.A.shape[1])
     residuals = [-p.b[row].copy() for row in p.rows]
-    lipschitz = [sum(np.linalg.norm(p.block[i][j], 2)**2 for i in range(p.M))
-                 for j in range(p.N)]
-    # One scalar norm per owner, in addition to the common initialization.
-    payload = p.initialization_payload + p.M * p.N
+    if share_gram:
+        # Each owner sends its Gram upper triangle. Symmetry determines the rest.
+        lipschitz = []
+        for j in range(p.N):
+            gram = sum(p.block[i][j].T @ p.block[i][j] for i in range(p.M))
+            lipschitz.append(np.linalg.eigvalsh(gram)[-1])
+        payload = p.initialization_payload + gram_setup_cost(p)
+    else:
+        lipschitz = [sum(np.linalg.norm(p.block[i][j], 2)**2 for i in range(p.M))
+                     for j in range(p.N)]
+        payload = p.initialization_payload + p.M * p.N
     for iteration in range(1, 40001):
         j = int(generator.integers(p.N))
         col = p.cols[j]

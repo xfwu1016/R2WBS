@@ -46,6 +46,14 @@ python experiments/column_baseline.py --results reproduced/results --output repr
 
 Runs a uniformly sampled column-block proximal-gradient method on the generated problem instances and compares its payload with quarter-participation R2WBS at a common original-problem duality-gap threshold.
 
+To compare two ways of choosing the column step size, run:
+
+```bash
+python experiments/column_stepsize_sensitivity.py --results reproduced/results --output reproduced/column_stepsize.csv
+```
+
+The script uses the same twelve instances or partitions, column sequences, gap checks and hub routing. In the first variant each matrix owner sends one squared norm. In the second it sends the upper triangle of its local Gram matrix so the coordinator can compute a tighter column Lipschitz bound. The output includes both initialization charges in the respective total payloads, each method's stopping gap and the paired payload ratios.
+
 ### Audit interval, message deployment, and nonzero-graph initialization
 
 ```bash
@@ -53,6 +61,14 @@ python experiments/protocol_checks.py --results reproduced/results --output repr
 ```
 
 Replays audit intervals of 10 and 50 rounds using the same generated arrays and activation seeds, compares message counts for the documented deployments and merged audit messages, and checks the initialization-bias formula on a nonzero graph.
+
+After that command has written `audit_spacing.csv`, run:
+
+```bash
+python experiments/audit_reuse.py --results reproduced/results --spacing reproduced/protocol_checks/audit_spacing.csv --output reproduced/audit_reuse
+```
+
+This replays the activation counts and recalculates two costs on the same trajectories. For graph calls it reuses a failed audit's projections in the next update. For communication it lets each remote role return its squared residual norm in the audit. The two CSVs give the per-run counts and the partial-to-full ratios for audit intervals of 10, 25 and 50 rounds.
 
 ### Local contraction diagnostic
 
@@ -84,7 +100,9 @@ Communication counts are real-valued unicast payloads under the stated logical d
 - `experiments/summarize_results.py` aggregates run records.
 - `experiments/audit_stopping_rules.py` compares stopping criteria.
 - `experiments/column_baseline.py` runs the randomized column-block comparator.
+- `experiments/column_stepsize_sensitivity.py` compares local-norm and shared-Gram column step sizes.
 - `experiments/protocol_checks.py` studies audit intervals, message counts, and initialization bias.
+- `experiments/audit_reuse.py` accounts for audit projection reuse and scalar residual replies.
 - `experiments/local_rate_check.py` computes the local contraction diagnostic.
 - `experiments/penalty_sensitivity.py` varies the penalty parameter.
 - `scripts/` contains plotting, schematic, and archived-record verification utilities.
