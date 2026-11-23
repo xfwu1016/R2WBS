@@ -1,43 +1,90 @@
 # R2WBS
 
-**Randomized Two-Way Block Splitting for Hybrid Federated Convex Optimization**
+Code for reproducing the numerical experiments accompanying **Randomized Two-Way Block Splitting for Hybrid Federated Convex Optimization**.
 
-This repository contains the code for reproducing the numerical experiments. R2WBS lets individual matrix-block clients update using cached row and column aggregates.
+The repository contains source code and instructions only. It does not contain the manuscript, archived experiment data, run records, or generated figures.
 
 ## Requirements
 
-- Python 3.12 (the archived runs used Python 3.12.14)
-- Dependencies listed in `requirements.txt`
-
-Install the dependencies from the repository root:
+- Python 3.12 recommended. The archived runs used Python 3.12.14.
+- Install the packages from the repository root:
 
 ```bash
 python -m pip install -r requirements.txt
 ```
 
-## Reproduce the experiments
+## Reproduce the main experiment grid
 
-Run the complete experiment grid and generate its summaries and figures:
+Generate the 39 runs, problem arrays, random seeds, audit trajectories, and run records:
 
 ```bash
-python experiments/run_experiments.py --output reproduced/results
-python experiments/summarize_results.py --results reproduced/results --output reproduced/summary
-python scripts/make_figures.py --results reproduced/results --output reproduced/figures
+python experiments/run_experiments.py --output results
+python experiments/summarize_results.py --results results --output reproduced/summary
+python scripts/make_figures.py --results results --output reproduced/figures
 python scripts/make_algorithm_schematic.py --output reproduced/figures
 ```
 
-The experiment runner generates the problem instances and writes run records, trajectories, and arrays under `reproduced/results/`. The plotting scripts read those outputs. The final timing fields measure single-threaded sequential Python execution; they are not federated wall-clock speedups. Communication is counted as real-valued unicast payload under the stated logical protocol, not measured network traffic.
+The runner creates `results/` locally. This generated directory is ignored by Git and is not part of the repository. The figures use these newly generated results.
 
-## Repository contents
+## Reproduce the additional analyses in the revised study
 
-- `experiments/run_experiments.py`: problem generation, R2WBS updates, certificates, and experiment runner
-- `experiments/summarize_results.py`: summaries and the generated results table
-- `scripts/make_figures.py`: numerical figures from run records
-- `scripts/make_algorithm_schematic.py`: algorithm schematic
-- `scripts/verify_records.py`: checks the archived records and can compare a new run with them
+Run the main experiment grid above first. The following scripts read its `results/` data and write derived files under `reproduced/`.
 
-This is a code-only repository: archived data, run records, and rendered figures are not included. `scripts/verify_records.py` therefore requires the separate experimental archive, including its `results/` directory. The diabetes example is loaded through scikit-learn.
+### Stopping rules and accuracy diagnostics
 
-## 中文说明
+```bash
+python experiments/audit_stopping_rules.py --results results --output reproduced/diagnostics
+```
 
-本仓库仅包含代码和依赖清单，不含归档数据、实验记录或生成的图件。运行 `run_experiments.py` 可重新生成实验数据与结果；`verify_records.py` 则需要另行提供完整实验归档中的 `results/` 目录。
+Recomputes the paired comparison at the joint original-gap and lifted-residual stopping rule, compares it with stopping on the lifted residual alone, and writes the accuracy and stopping tables plus per-run diagnostics.
+
+### Randomized column-block baseline
+
+```bash
+python experiments/column_baseline.py --results results --output reproduced/column_baseline.csv
+```
+
+Runs a uniformly sampled column-block proximal-gradient method on the generated problem instances and compares its payload with quarter-participation R2WBS at a common original-problem duality-gap threshold.
+
+### Audit interval, message deployment, and nonzero-graph initialization
+
+```bash
+python experiments/protocol_checks.py --output reproduced/protocol_checks
+```
+
+Replays audit intervals of 10 and 50 rounds using the same generated arrays and activation seeds, compares message counts for the documented deployments and merged audit messages, and checks the initialization-bias formula on a nonzero graph.
+
+### Local contraction diagnostic
+
+```bash
+python experiments/local_rate_check.py --results results --output reproduced/local_rate_check.csv
+```
+
+Measures the distance-to-residual ratio and one-step contraction on the specified full-participation instance. These are finite-sample diagnostics, not a uniform error-bound estimate.
+
+### Penalty sensitivity
+
+```bash
+python experiments/penalty_sensitivity.py --output reproduced/penalty_sensitivity.csv
+```
+
+Repeats one fixed problem and activation stream at three values of the Douglas–Rachford penalty.
+
+## Reproduce archived-record checks
+
+The optional record-verification script compares a newly generated run with an archived `results/` directory. It requires both datasets to be available locally. No archived records are included here.
+
+## Interpretation
+
+Communication counts are real-valued unicast payloads under the stated logical deployment, not measured network traffic. Timings measure single-threaded sequential Python execution and are not distributed wall-clock speedups. Graph-projection counts, total communication, and elapsed computation are separate measures.
+
+## Code map
+
+- `experiments/run_experiments.py` generates the instances and executes R2WBS.
+- `experiments/summarize_results.py` aggregates run records.
+- `experiments/audit_stopping_rules.py` compares stopping criteria.
+- `experiments/column_baseline.py` runs the randomized column-block comparator.
+- `experiments/protocol_checks.py` studies audit intervals, message counts, and initialization bias.
+- `experiments/local_rate_check.py` computes the local contraction diagnostic.
+- `experiments/penalty_sensitivity.py` varies the penalty parameter.
+- `scripts/` contains plotting, schematic, and archived-record verification utilities.
