@@ -6,7 +6,7 @@ This repository contains the code for reproducing the numerical experiments. R2W
 
 ## Requirements
 
-- Python 3.10 or later (the archived runs used Python 3.12.14)
+- Python 3.12 (the archived runs used Python 3.12.14)
 - Dependencies listed in `requirements.txt`
 
 Install the dependencies from the repository root:
