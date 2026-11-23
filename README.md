@@ -86,6 +86,24 @@ python experiments/penalty_sensitivity.py --results reproduced/results --output 
 
 Repeats one fixed problem and activation stream at three values of the Douglas–Rachford penalty.
 
+## Five-repetition sensitivity check
+
+Run from the repository root with the same Python environment as the primary experiments:
+
+```bash
+python experiments/run_experiments.py --repeats 5 --output reproduced/grid_five
+python experiments/five_repeat_check.py --grid reproduced/grid_five --output reproduced/five_repeats
+```
+
+This extends the original seed schedule by two repetitions per setting.
+The first command generates all 65 runs locally. The second pairs each
+partial-participation run with full participation on the same instance
+or partition. It writes the 26 added runs, their inputs and trajectories,
+45 paired comparisons, and medians and ranges for fresh and reused
+projection counts and for both loss deployments. To pool the 26 new runs
+with the exact 39 records in the journal supplement, add
+`--primary /path/to/supplement/results` to the second command.
+
 ## Reproduce archived-record checks
 
 The optional record-verification script compares a newly generated run with an archived `results/` directory. It requires both datasets to be available locally. No archived records are included here.

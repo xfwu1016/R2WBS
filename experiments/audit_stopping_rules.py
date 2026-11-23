@@ -135,7 +135,7 @@ def main():
         r"Joint stopping rule. Rounds, graph calls and payload (millions of scalars) are medians over three runs. The last two columns give the largest relative gap and normalized residual, both in units of $10^{-6}$, over the same runs. Sampling labels give the Bernoulli probability or the rectangle size.",
         "tab:numerical_results","llrrrrr",r"Problem & Mask & Rounds & Graph calls & Payload & Gap & Residual",tab1))
     (out/"stop_table.tex").write_text(table(
-        r"Paired medians relative to full participation at the same stopping rule. $G$ counts graph projections, $B$ counts transmitted scalars, and $T$ is recorded serial solve time. Both payload columns include the diagnostic gap pass. The last column is the median relative gap at the first lifted stop in units of $10^{-5}$.",
+        r"Paired medians relative to full participation at the same stopping rule. $G$ counts graph projections, $B$ counts transmitted scalars, and $T$ is recorded serial solve time. Both payload columns include the diagnostic gap pass. The last column gives median relative gaps at the first lifted stop in units of $10^{-5}$. All exceed the $10^{-6}$ gap threshold.",
         "tab:stop_rules","llrrrrrr",r" & & \multicolumn{3}{c}{Joint stop} & \multicolumn{3}{c}{Lifted stop}\\ \cmidrule(lr){3-5}\cmidrule(lr){6-8} Problem & Mask & $G$ & $B$ & $T$ & $G$ & $B$ & Gap",tab2))
     for case in LABELS:
         full = indexed[case,1,"bernoulli","joint"]["rounds_median"]

@@ -47,7 +47,7 @@ def main():
     labels={'correlated_lasso':'Correlated Lasso','rank_deficient_lasso':'Rank-deficient Lasso',
         'uneven_huber':'Uneven Huber','diabetes_quadratic':'Diabetes quadratic'}
     lines=[r'\begin{table}[t]',r'\caption{Common-accuracy results. Entries are medians of three repetitions; the last column is the median paired payload ratio relative to full participation. Graph counts and payloads include every audit. The raw records include the full ranges.}',
-        r'\label{tab:numerical_results}',r'\centering',r'\small',r'\setlength{\tabcolsep}{3.3pt}',r'\begin{tabular}{llrrrr}',r'\toprule',
+        r'\label{tab:archived_run_summary}',r'\centering',r'\small',r'\setlength{\tabcolsep}{3.3pt}',r'\begin{tabular}{llrrrr}',r'\toprule',
         r'Problem & Graph sampling & Rounds & Graph prox. & Payload ($10^6$) & Ratio\\',r'\midrule']
     for row in rows:
         sample=f"$p={row['participation']:g}$" if row['mask_type']=='bernoulli' else r'$2\times2$ rectangle'
